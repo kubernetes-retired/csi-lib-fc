@@ -17,9 +17,11 @@ package fibrechannel
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"io/ioutil"
 	"os"
+	"os/exec"
+
+	"github.com/golang/glog"
 
 	"errors"
 	"path"
@@ -312,4 +314,14 @@ func removeFromScsiSubsystem(deviceName string, io ioHandler) {
 	glog.Infof("fc: remove device from scsi-subsystem: path: %s", fileName)
 	data := []byte("1")
 	io.WriteFile(fileName, data, 0666)
+}
+
+func RemoveMultipathDevice(device string) error {
+	cmd := exec.Command("multipath", "-f", device)
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed remove multipath device: %s err: %v", device, err)
+	}
+	glog.Infof("output of multipath device remove command: %s", stdoutStderr)
+	return nil
 }
