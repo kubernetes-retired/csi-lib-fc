@@ -17,9 +17,10 @@ package fibrechannel
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"io/ioutil"
 	"os"
+
+	"github.com/golang/glog"
 
 	"errors"
 	"path"
@@ -208,9 +209,13 @@ func findDiskWWIDs(wwid string, io ioHandler) (string, string) {
 					glog.Errorf("fc: failed to find a corresponding disk from symlink[%s], error %v", DevID+name, err)
 					return "", ""
 				}
-				if dm, err1 := FindMultipathDeviceForDevice(disk, io); err1 != nil {
-					return disk, dm
+
+				dm, err1 := FindMultipathDeviceForDevice(disk, io)
+				if err1 != nil {
+					glog.Errorf("fc: failed to find a multipath disk for %s, error %v", disk, err)
+					return disk, ""
 				}
+				return disk, dm
 			}
 		}
 	}
